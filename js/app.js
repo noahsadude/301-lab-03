@@ -8,44 +8,90 @@ function ImgData (input) {
 }
 
 ImgData.prototype.buildHTML = function() {
-  let template = $('#img-template').html();
-  let builder = Handlebars.compile(template);
+  let builder = Handlebars.compile($('#img-template').html());
   $('#images').append(builder(this));
 };
 
-ImgData.prototype.build = function(){
-  $('main').append(`<div class="template"</div>`)
-  let container = $('div[class="template"]');
-  let template =`
-    <h2>${this.title}</h2>
-    <img src=${this.image_url}>
-    <p>Description: ${this.description}</p>
-    <p>Horns: ${this.horns}</p>`
-  container.html(template);
-  container.removeClass('template');
+ImgData.read = (url) => {
+  ImgData.all=[];
+  $.get(`data/page-${url}.json`, 'json')
+    .then(data => {
+      data.forEach(element => {
+        ImgData.all.push(new ImgData(element));
+      });
+
+      ImgData.buildKwdFilter();
+      ImgData.sortArrByProperty(ImgData.all,'title');
+      $('main').empty();
+      ImgData.all.forEach(element => {
+        element.buildHTML();
+      });
+    //end of then
+    });
 }
 
-let read = (url,output,page) => {
-  $.get(url, 'json')
-    .then(data => {
-      data.forEach(item => {
-        item.page = page;
-        output.push(new ImgData(item));
-      });
-    })
+ImgData.sortArrByProperty = (array,property) => {
+  array.sort((a,b) => {
+    if(a[property] > b[property]){
+      return 1;
+    } else if(a[property] < b[property]) {
+      return -1;
+    } else {
+      return 0;
+    }
+  });
+}
+
+ImgData.buildKwdFilter = () => {
+  let kwdFilter = [];
+  $('select').not(':first').remove();
+
+  ImgData.all.forEach(element => {
+    if(!kwdFilter.includes(element.keyword)){
+      kwdFilter.push(element.keyword);
+    }
+  });
+  kwdFilter.forEach(element => {
+    let option = `<option value="${element}">${element}</option>`;
+    $('select').append(option);
+  });
+}
+
+ImgData.filterImg = () =>{
+  $('select').on('change', function(){
+    let selection = $(this).val();
+    console.log(selection);
+    if(selection !== 'default') {
+      $('div').hide();
+      $(`div.${selection}`).fadeIn();
+    }
+  });
+}
+
+ImgData.onSort = () => {
+  $('input').on('change', function() {
+    $('select').val('default');
+    $('div').remove();
+    ImgData.sortArrByProperty(ImgData.all, $(this).attr('id'));
+    ImgData.all.forEach(element => {
+      $('#images').append(element.buildHTML());
+    });
+  });
 };
 
-let page1 = [];
-let page2 = [];
-read('data/page-1.json',page1,1);
-console.log(page1);
-read('data/page-2.json',page2,2);
-  
-page1.forEach(element => {
-  element.build();
-})
+ImgData.pushNav = () => {
+  $('ol').on('click', 'li', function(){
+    $('#images').empty();
+    ImgData.read($(this).attr('id'));
+  });
+}
 
-
+$(() => {
+  ImgData.read(1);
+  ImgData.filterImg();
+  ImgData.pushNav();
+  ImgData.onSort();
+});
 //TODO:Initialize render
 
 //TODO:listen for filtering

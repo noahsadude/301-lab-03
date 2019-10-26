@@ -6,7 +6,7 @@
     <title>The Gallery of Horns</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script id="img-template" type="text/x-handlebars-template">
-      <div>
+      <div class="{{keyword}}">
         <h2>{{title}}</h2>
         <img src={{image_url}}>
         <p>{{description}}</p>
@@ -18,15 +18,21 @@
   <body>
     <header>
       <h1>The Gallery of Horns</h1>
-      <select id=#kwd>
+      <form>
+        <input type="radio" name="sort" id="title" checked="checked">
+        <label for="title">Sort by Title</label>
+        <input type="radio" name="sort" id="horns">
+        <label for="horns">Sort by Number of Horns</label>
+      </form>
+      <select>
         <option value="default">Filter by Keyword</option>
       </select>
-      <select id=#pge>
-        <option value="default">Choose a page</option>
-      </select>
+      <ol>
+        <li id="1">page 1</li>
+        <li id="2">page 2</li>
+      </ol>
     </header>
-    <main>
-      <section id="images"></section>
+    <main id="images">
     </main>
     <footer>
       &copy; 2018 Code Fellows

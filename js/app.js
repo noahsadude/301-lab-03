@@ -10,7 +10,7 @@ function ImgData (input) {
 ImgData.prototype.buildHTML = function() {
   let template = $('#img-template').html();
   let builder = Handlebars.compile(template);
-  return builder(this);
+  $('#images').append(builder(this));
 };
 
 ImgData.prototype.build = function(){
@@ -41,11 +41,9 @@ read('data/page-1.json',page1,1);
 console.log(page1);
 read('data/page-2.json',page2,2);
   
-//page1.forEach(element => {
-//  element.build();
-//})
-
-page1[0].build();
+page1.forEach(element => {
+  element.build();
+})
 
 
 //TODO:Initialize render
